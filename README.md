@@ -1,34 +1,35 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# devroast
 
-## Getting Started
+devroast e uma experiencia web onde voce cola um trecho de codigo e recebe uma analise em tom de roast: direta, divertida e com cara de terminal hacker.
 
-First, run the development server:
+O projeto esta sendo construido durante o evento NLW da Rocketseat, acompanhando as aulas e evoluindo a interface ao longo do evento.
+
+## O que o app faz
+
+- recebe trechos de codigo para analise
+- ativa um modo de roast com identidade mais sarcastica
+- destaca a experiencia visual de editor, terminal e feedback de score
+- mostra um leaderboard com os codigos mais "sofriveis"
+- possui um playground interno para evolucao e validacao dos componentes visuais
+
+## Experiencia
+
+O foco do devroast nao e ser apenas uma tela de formulario. A proposta e transformar a analise de codigo em uma experiencia com personalidade, misturando humor, interface inspirada em terminal e componentes reutilizaveis para suportar a evolucao do produto.
+
+## Status do projeto
+
+Neste momento o app esta em construcao, com foco em:
+
+- consolidacao da identidade visual
+- organizacao dos componentes compartilhados
+- criacao das primeiras interacoes da home
+- preparacao da base para as proximas features do produto
+
+## Rodando localmente
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Abra `http://localhost:3000` no navegador.
