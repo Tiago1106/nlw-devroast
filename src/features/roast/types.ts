@@ -28,6 +28,8 @@ type RoastAnalysisResult = {
   roastMode: RoastMode;
   score: number;
   scoreLabel: RoastIssueSeverity;
+  shareSlug?: string;
+  submissionId?: string;
   sourceCode: string;
   summary: string;
   verdict: RoastVerdict;

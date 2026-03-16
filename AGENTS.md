@@ -7,3 +7,4 @@
 - Componentes: usar named exports, `tailwind-variants` para variantes e seguir `src/components/ui/AGENTS.md` para padroes de UI.
 - Renderizacao: preferir Server Components; adicionar `"use client"` apenas quando houver estado, efeitos ou eventos no navegador.
 - Higiene: evitar logica de negocio dentro de `page.tsx`; extrair para componentes/feature folders e manter nomes de arquivos em kebab-case.
+- Git: apos criar commit solicitado pelo usuario, lembrar de executar `git push` no fluxo seguinte.

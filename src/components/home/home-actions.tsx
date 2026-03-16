@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { HomeRoastResult } from "@/components/home/home-roast-result";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,7 @@ function HomeActions({
   initialCode,
   totalRoasts,
 }: HomeActionsProps) {
+  const router = useRouter();
   const [code, setCode] = useState(initialCode);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isFullRoast, setIsFullRoast] = useState(true);
@@ -38,6 +40,11 @@ function HomeActions({
           language: resolvedLanguage,
           roastMode: isFullRoast ? "full_roast" : "standard",
         });
+
+        if (nextResult.shareSlug) {
+          router.push(`/r/${nextResult.shareSlug}`);
+          return;
+        }
 
         setResult(nextResult);
         setErrorMessage(null);

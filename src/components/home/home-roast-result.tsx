@@ -1,10 +1,15 @@
+import Link from "next/link";
+
 import { Badge } from "@/components/ui/badge";
+import { button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { DiffLine } from "@/components/ui/diff-line";
 import { ScoreRing } from "@/components/ui/score-ring";
 import { SectionTitle, Typography } from "@/components/ui/typography";
 import type { RoastAnalysisResult } from "@/features/roast/types";
 import { cn } from "@/lib/cn";
+
+import { ShareRoastButton } from "./share-roast-button";
 
 type HomeRoastResultProps = {
   className?: string;
@@ -30,6 +35,7 @@ function HomeRoastResult({ className, result }: HomeRoastResultProps) {
               {getVerdictLabel(result.verdict)}
             </Badge>
             <Typography variant="meta">{`lang: ${result.language}`}</Typography>
+            <Typography variant="meta">{`lines: ${result.lineCount}`}</Typography>
             <Typography variant="meta">{`mode: ${result.roastMode}`}</Typography>
           </div>
 
@@ -39,6 +45,19 @@ function HomeRoastResult({ className, result }: HomeRoastResultProps) {
               {result.headline}
             </Typography>
             <Typography>{result.summary}</Typography>
+
+            {result.shareSlug ? (
+              <div className="flex flex-wrap items-center gap-3 pt-2">
+                <Link
+                  className={button({ size: "md", variant: "secondary" })}
+                  href={`/r/${result.shareSlug}`}
+                >
+                  {"$ open_saved_roast"}
+                </Link>
+                <ShareRoastButton slug={result.shareSlug} />
+                <Typography variant="meta">{`share: /r/${result.shareSlug}`}</Typography>
+              </div>
+            ) : null}
           </div>
         </div>
       </div>

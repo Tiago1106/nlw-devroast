@@ -112,7 +112,7 @@ async function getHomePageData(): Promise<HomePageData> {
       .from(roastSubmissions)
       .where(eq(roastSubmissions.status, "completed"));
 
-    if (!leaderboard.length || !stats) {
+    if (!stats) {
       return FALLBACK_HOME_PAGE_DATA;
     }
 

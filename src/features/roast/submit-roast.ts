@@ -1,6 +1,6 @@
 "use server";
 
-import { createHash } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 
 import { refresh } from "next/cache";
 
@@ -9,6 +9,7 @@ import {
   isDatabaseConfigured,
   roastDiffLines,
   roastIssues,
+  roastShares,
   roastSubmissions,
 } from "@/db";
 
@@ -17,6 +18,22 @@ import type { SubmitRoastInput } from "./types";
 
 function getSourceHash(sourceCode: string) {
   return createHash("sha256").update(sourceCode).digest("hex");
+}
+
+function slugify(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 48);
+}
+
+function createShareSlug(language: string, headline: string) {
+  const base =
+    slugify(`${language}-${headline.replaceAll('"', "")}`) || "roast";
+  const suffix = randomBytes(3).toString("hex");
+
+  return `${base}-${suffix}`;
 }
 
 async function submitRoast(input: SubmitRoastInput) {
@@ -30,6 +47,7 @@ async function submitRoast(input: SubmitRoastInput) {
 
   if (isDatabaseConfigured()) {
     const db = getDb();
+    const shareSlug = createShareSlug(analysis.language, analysis.headline);
     const [submission] = await db
       .insert(roastSubmissions)
       .values({
@@ -69,6 +87,16 @@ async function submitRoast(input: SubmitRoastInput) {
           submissionId: submission.id,
         })),
       );
+
+      await db.insert(roastShares).values({
+        description: analysis.summary,
+        slug: shareSlug,
+        submissionId: submission.id,
+        title: `devroast - ${analysis.headline.replaceAll('"', "")}`,
+      });
+
+      analysis.shareSlug = shareSlug;
+      analysis.submissionId = submission.id;
     }
   }
 

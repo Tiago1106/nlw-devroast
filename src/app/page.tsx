@@ -1,5 +1,7 @@
+import Link from "next/link";
+
 import { HomeActions } from "@/components/home/home-actions";
-import { Button } from "@/components/ui/button";
+import { button } from "@/components/ui/button";
 import { TableRow } from "@/components/ui/table-row";
 import { SectionTitle, Typography } from "@/components/ui/typography";
 import { getHomePageData } from "@/features/home/get-home-page-data";
@@ -45,35 +47,55 @@ export default async function Home() {
               </Typography>
             </div>
 
-            <Button size="sm" variant="ghost">
-              $ view_all &gt;&gt;
-            </Button>
+            <Link
+              className={button({ size: "sm", variant: "ghost" })}
+              href="/leaderboard"
+            >
+              {"$ view_all >>"}
+            </Link>
           </div>
 
           <div className="overflow-hidden border border-border-primary bg-bg-surface">
-            <div className="grid w-full grid-cols-[50px_70px_minmax(0,1fr)_100px] items-center gap-6 border-b border-border-primary bg-bg-surface px-5 py-3 font-mono text-xs text-text-tertiary">
-              <span>#</span>
-              <span>score</span>
-              <span>code</span>
-              <span>lang</span>
-            </div>
+            {leaderboardRows.length ? (
+              <>
+                <div className="grid w-full grid-cols-[50px_70px_minmax(0,1fr)_100px] items-center gap-6 border-b border-border-primary bg-bg-surface px-5 py-3 font-mono text-xs text-text-tertiary">
+                  <span>#</span>
+                  <span>score</span>
+                  <span>code</span>
+                  <span>lang</span>
+                </div>
 
-            {leaderboardRows.map((row) => (
-              <TableRow
-                key={row.rank}
-                className="grid-cols-[50px_70px_minmax(0,1fr)_100px]"
-                language={row.language}
-                preview={row.preview}
-                rank={row.rank}
-                score={row.score}
-                scoreTone={row.scoreTone}
-              />
-            ))}
+                {leaderboardRows.map((row) => (
+                  <TableRow
+                    key={row.rank}
+                    className="grid-cols-[50px_70px_minmax(0,1fr)_100px]"
+                    language={row.language}
+                    preview={row.preview}
+                    rank={row.rank}
+                    score={row.score}
+                    scoreTone={row.scoreTone}
+                  />
+                ))}
+              </>
+            ) : (
+              <div className="flex flex-col gap-2 px-5 py-10 text-center">
+                <Typography className="font-mono text-sm text-text-primary">
+                  no public roasts yet.
+                </Typography>
+                <Typography>
+                  {
+                    "// be the first to embarrass a snippet and populate the board"
+                  }
+                </Typography>
+              </div>
+            )}
           </div>
 
           <div className="flex justify-center">
             <Typography variant="meta">
-              {`showing top ${leaderboardRows.length} of ${stats.totalRoasts.toLocaleString("en-US")} - view full leaderboard >>`}
+              {leaderboardRows.length
+                ? `showing top ${leaderboardRows.length} of ${stats.totalRoasts.toLocaleString("en-US")} - view full leaderboard >>`
+                : "generate a roast to kick off the public leaderboard"}
             </Typography>
           </div>
         </section>
