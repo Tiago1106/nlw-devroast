@@ -2,32 +2,11 @@ import { HomeActions } from "@/components/home/home-actions";
 import { Button } from "@/components/ui/button";
 import { TableRow } from "@/components/ui/table-row";
 import { SectionTitle, Typography } from "@/components/ui/typography";
-
-const LEADERBOARD_ROWS = [
-  {
-    language: "javascript",
-    preview: "var x = getItems().map() // what is happening?",
-    rank: "#1",
-    score: "1.2",
-    scoreTone: "critical" as const,
-  },
-  {
-    language: "typescript",
-    preview: "if (x == 'test') return true; else return false;",
-    rank: "#2",
-    score: "1.9",
-    scoreTone: "critical" as const,
-  },
-  {
-    language: "py",
-    preview: "SELECT * FROM users WHERE id = " + "user_id and something",
-    rank: "#3",
-    score: "2.1",
-    scoreTone: "critical" as const,
-  },
-];
+import { getHomePageData } from "@/features/home/get-home-page-data";
 
 export default async function Home() {
+  const { leaderboardRows, stats } = await getHomePageData();
+
   return (
     <main className="px-6 pb-16 pt-20">
       <div className="mx-auto flex w-full max-w-[960px] flex-col gap-8">
@@ -48,7 +27,11 @@ export default async function Home() {
         </section>
 
         <section className="flex flex-col gap-4">
-          <HomeActions initialCode="" />
+          <HomeActions
+            averageScore={stats.averageScore}
+            initialCode=""
+            totalRoasts={stats.totalRoasts}
+          />
         </section>
 
         <div className="h-7" />
@@ -75,7 +58,7 @@ export default async function Home() {
               <span>lang</span>
             </div>
 
-            {LEADERBOARD_ROWS.map((row) => (
+            {leaderboardRows.map((row) => (
               <TableRow
                 key={row.rank}
                 className="grid-cols-[50px_70px_minmax(0,1fr)_100px]"
@@ -90,7 +73,7 @@ export default async function Home() {
 
           <div className="flex justify-center">
             <Typography variant="meta">
-              showing top 3 of 2,847 - view full leaderboard &gt;&gt;
+              {`showing top ${leaderboardRows.length} of ${stats.totalRoasts.toLocaleString("en-US")} - view full leaderboard >>`}
             </Typography>
           </div>
         </section>
