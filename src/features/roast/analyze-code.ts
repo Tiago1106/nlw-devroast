@@ -240,7 +240,7 @@ function calculateScore(issues: RoastIssue[], roastMode: RoastMode) {
   return Number(Math.max(1, Math.min(9.8, score)).toFixed(1));
 }
 
-function analyzeCode(
+function analyzeCodeHeuristic(
   sourceCode: string,
   language: string,
   roastMode: RoastMode,
@@ -270,4 +270,4 @@ function analyzeCode(
   };
 }
 
-export { analyzeCode };
+export { analyzeCodeHeuristic };

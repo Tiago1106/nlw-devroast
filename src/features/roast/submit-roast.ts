@@ -13,7 +13,7 @@ import {
   roastSubmissions,
 } from "@/db";
 
-import { analyzeCode } from "./analyze-code";
+import { analyzeCodeResult } from "./analyze-code-result";
 import type { SubmitRoastInput } from "./types";
 
 function getSourceHash(sourceCode: string) {
@@ -43,7 +43,11 @@ async function submitRoast(input: SubmitRoastInput) {
     throw new Error("Paste some code before roasting it.");
   }
 
-  const analysis = analyzeCode(sourceCode, input.language, input.roastMode);
+  const analysis = await analyzeCodeResult(
+    sourceCode,
+    input.language,
+    input.roastMode,
+  );
 
   if (isDatabaseConfigured()) {
     const db = getDb();

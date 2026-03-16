@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { HomeRoastResult } from "@/components/home/home-roast-result";
+import { RoastSharePanel } from "@/components/home/roast-share-panel";
 import { button } from "@/components/ui/button";
 import { SectionTitle, Typography } from "@/components/ui/typography";
 import { getRoastBySlug } from "@/features/roast/get-roast-by-slug";
@@ -38,7 +39,43 @@ export default async function RoastSharePage({ params }: RoastSharePageProps) {
           </Link>
         </section>
 
+        {result.shareSlug ? (
+          <RoastSharePanel
+            createdAt={result.createdAt}
+            lineCount={result.lineCount}
+            score={result.score}
+            shareSlug={result.shareSlug}
+            shareTitle={result.shareTitle}
+          />
+        ) : null}
+
         <HomeRoastResult result={result} />
+
+        <section className="grid gap-4 border border-border-primary bg-bg-surface p-5 lg:grid-cols-3">
+          <div>
+            <Typography variant="meta">submission id</Typography>
+            <Typography className="pt-2 font-mono text-xs text-text-primary">
+              {result.submissionId}
+            </Typography>
+          </div>
+          <div>
+            <Typography variant="meta">language</Typography>
+            <Typography className="pt-2 font-mono text-xs text-text-primary">
+              {result.language}
+            </Typography>
+          </div>
+          <div>
+            <Typography variant="meta">created</Typography>
+            <Typography className="pt-2 font-mono text-xs text-text-primary">
+              {result.createdAt
+                ? new Intl.DateTimeFormat("en-US", {
+                    dateStyle: "medium",
+                    timeStyle: "short",
+                  }).format(new Date(result.createdAt))
+                : "recent"}
+            </Typography>
+          </div>
+        </section>
       </div>
     </main>
   );

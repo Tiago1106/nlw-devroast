@@ -21,6 +21,7 @@ async function getRoastBySlug(
   const db = getDb();
   const [submission] = await db
     .select({
+      createdAt: roastSubmissions.createdAt,
       headline: roastSubmissions.headline,
       id: roastSubmissions.id,
       language: roastSubmissions.language,
@@ -28,6 +29,7 @@ async function getRoastBySlug(
       roastMode: roastSubmissions.roastMode,
       score: roastSubmissions.score,
       scoreLabel: roastSubmissions.scoreLabel,
+      shareTitle: roastShares.title,
       shareSlug: roastShares.slug,
       sourceCode: roastSubmissions.sourceCode,
       summary: roastSubmissions.summary,
@@ -68,6 +70,7 @@ async function getRoastBySlug(
   ]);
 
   return {
+    createdAt: submission.createdAt?.toISOString(),
     diffLines: diffLines.map((line) => ({
       content: line.content,
       kind: line.kind,
@@ -82,6 +85,7 @@ async function getRoastBySlug(
     score: submission.score,
     scoreLabel: (submission.scoreLabel ??
       "warning") as RoastAnalysisResult["scoreLabel"],
+    shareTitle: submission.shareTitle,
     shareSlug: submission.shareSlug,
     submissionId: submission.id,
     sourceCode: submission.sourceCode,

@@ -20,6 +20,7 @@ type RoastDiffLine = {
 };
 
 type RoastAnalysisResult = {
+  createdAt?: string;
   diffLines: RoastDiffLine[];
   headline: string;
   issues: RoastIssue[];
@@ -28,6 +29,7 @@ type RoastAnalysisResult = {
   roastMode: RoastMode;
   score: number;
   scoreLabel: RoastIssueSeverity;
+  shareTitle?: string;
   shareSlug?: string;
   submissionId?: string;
   sourceCode: string;

@@ -7,7 +7,9 @@ import { getLeaderboardPageData } from "@/features/roast/get-leaderboard-page-da
 type LeaderboardPageProps = {
   searchParams?: Promise<{
     language?: string;
+    page?: string;
     score?: "all" | "critical" | "warning" | "good";
+    sort?: "score_asc" | "score_desc" | "recent";
   }>;
 };
 
@@ -16,11 +18,17 @@ export default async function LeaderboardPage({
 }: LeaderboardPageProps) {
   const resolvedSearchParams = await searchParams;
   const selectedLanguage = resolvedSearchParams?.language ?? "all";
+  const selectedPage = Number(resolvedSearchParams?.page ?? "1") || 1;
   const selectedScore = resolvedSearchParams?.score ?? "all";
+  const selectedSort = resolvedSearchParams?.sort ?? "score_asc";
   const { rows, stats } = await getLeaderboardPageData({
     language: selectedLanguage,
+    page: selectedPage,
     score: selectedScore,
+    sort: selectedSort,
   });
+  const previousPage = Math.max(stats.currentPage - 1, 1);
+  const nextPage = Math.min(stats.currentPage + 1, stats.totalPages);
 
   return (
     <main className="px-6 pb-16 pt-20">
@@ -59,6 +67,13 @@ export default async function LeaderboardPage({
               {stats.averageScore.toFixed(1)}/10
             </Typography>
           </div>
+
+          <div className="border border-border-primary bg-bg-surface p-5 lg:col-span-3">
+            <Typography variant="meta">filtered matches</Typography>
+            <Typography className="pt-2 font-mono text-2xl text-text-primary">
+              {stats.filteredRoasts.toLocaleString("en-US")}
+            </Typography>
+          </div>
         </section>
 
         <section className="flex flex-wrap items-end gap-4 border border-border-primary bg-bg-surface p-5">
@@ -93,11 +108,26 @@ export default async function LeaderboardPage({
             </select>
           </label>
 
+          <label className="flex min-w-[180px] flex-col gap-2">
+            <Typography variant="meta">sort</Typography>
+            <select
+              className="border border-border-primary bg-bg-elevated px-3 py-2 font-mono text-xs text-text-primary outline-none"
+              defaultValue={selectedSort}
+              form="leaderboard-filters"
+              name="sort"
+            >
+              <option value="score_asc">score asc</option>
+              <option value="score_desc">score desc</option>
+              <option value="recent">most recent</option>
+            </select>
+          </label>
+
           <form
             action="/leaderboard"
             className="flex flex-wrap gap-3"
             id="leaderboard-filters"
           >
+            <input name="page" type="hidden" value="1" />
             <button
               className={button({ size: "md", variant: "secondary" })}
               type="submit"
@@ -175,6 +205,29 @@ export default async function LeaderboardPage({
               </Typography>
             </div>
           )}
+        </section>
+
+        <section className="flex flex-wrap items-center justify-between gap-4 border border-border-primary bg-bg-surface p-5">
+          <Typography variant="meta">
+            {`page ${stats.currentPage} of ${stats.totalPages} - ${stats.pageSize} rows per page`}
+          </Typography>
+
+          <div className="flex flex-wrap gap-3">
+            <Link
+              className={button({ size: "md", variant: "ghost" })}
+              href={`/leaderboard?language=${selectedLanguage}&score=${selectedScore}&sort=${selectedSort}&page=${previousPage}`}
+              prefetch={false}
+            >
+              {"$ prev"}
+            </Link>
+            <Link
+              className={button({ size: "md", variant: "secondary" })}
+              href={`/leaderboard?language=${selectedLanguage}&score=${selectedScore}&sort=${selectedSort}&page=${nextPage}`}
+              prefetch={false}
+            >
+              {"$ next"}
+            </Link>
+          </div>
         </section>
       </div>
     </main>

@@ -18,11 +18,17 @@ type LeaderboardPageRow = {
   shareSlug: string | null;
 };
 
+type LeaderboardSort = "score_asc" | "score_desc" | "recent";
+
 type LeaderboardPageStats = {
   averageScore: number;
   availableLanguages: string[];
+  currentPage: number;
+  filteredRoasts: number;
+  pageSize: number;
   publicRoasts: number;
   totalRoasts: number;
+  totalPages: number;
 };
 
 type LeaderboardPageData = {
@@ -66,8 +72,12 @@ const FALLBACK_LEADERBOARD_PAGE_DATA: LeaderboardPageData = {
   stats: {
     averageScore: 4.2,
     availableLanguages: ["all", "javascript", "typescript", "sql"],
+    currentPage: 1,
+    filteredRoasts: 3,
+    pageSize: 12,
     publicRoasts: 1320,
     totalRoasts: 2847,
+    totalPages: 1,
   },
 };
 
@@ -76,8 +86,12 @@ type LeaderboardScoreFilter = "all" | "critical" | "warning" | "good";
 
 type LeaderboardFilters = {
   language?: LeaderboardLanguageFilter;
+  page?: number;
   score?: LeaderboardScoreFilter;
+  sort?: LeaderboardSort;
 };
+
+const LEADERBOARD_PAGE_SIZE = 12;
 
 function formatPreview(sourceCode: string) {
   return sourceCode.replace(/\s+/g, " ").trim().slice(0, 92);
@@ -115,6 +129,8 @@ async function getLeaderboardPageData(
 
   try {
     const db = getDb();
+    const page = Math.max(filters.page ?? 1, 1);
+    const offset = (page - 1) * LEADERBOARD_PAGE_SIZE;
     const scoreCondition =
       filters.score === "critical"
         ? lt(roastSubmissions.score, 4)
@@ -134,7 +150,14 @@ async function getLeaderboardPageData(
       scoreCondition,
     );
 
-    const [rows, [stats], languages] = await Promise.all([
+    const orderByClause =
+      filters.sort === "score_desc"
+        ? [desc(roastSubmissions.score), desc(roastSubmissions.createdAt)]
+        : filters.sort === "recent"
+          ? [desc(roastSubmissions.createdAt), asc(roastSubmissions.score)]
+          : [asc(roastSubmissions.score), desc(roastSubmissions.createdAt)];
+
+    const [rows, [stats], languages, [filteredCount]] = await Promise.all([
       db
         .select({
           createdAt: roastSubmissions.createdAt,
@@ -150,8 +173,9 @@ async function getLeaderboardPageData(
           eq(roastShares.submissionId, roastSubmissions.id),
         )
         .where(whereConditions)
-        .orderBy(asc(roastSubmissions.score), desc(roastSubmissions.createdAt))
-        .limit(20),
+        .orderBy(...orderByClause)
+        .limit(LEADERBOARD_PAGE_SIZE)
+        .offset(offset),
       db
         .select({
           averageScore:
@@ -180,6 +204,15 @@ async function getLeaderboardPageData(
         )
         .groupBy(roastSubmissions.language)
         .orderBy(asc(roastSubmissions.language)),
+      db
+        .select({
+          total:
+            sql<number>`coalesce(count(${roastSubmissions.id}), 0)::int`.as(
+              "total",
+            ),
+        })
+        .from(roastSubmissions)
+        .where(whereConditions),
     ]);
 
     if (!stats) {
@@ -192,7 +225,7 @@ async function getLeaderboardPageData(
         language: row.language ?? "unknown",
         lines: row.lineCount,
         preview: formatPreview(row.sourceCode),
-        rank: `#${index + 1}`,
+        rank: `#${offset + index + 1}`,
         score: row.score.toFixed(1),
         scoreTone: getScoreTone(row.score),
         shareSlug: row.shareSlug,
@@ -205,8 +238,15 @@ async function getLeaderboardPageData(
             .map((entry) => entry.language)
             .filter((language): language is string => Boolean(language)),
         ],
+        currentPage: page,
+        filteredRoasts: Number(filteredCount?.total ?? 0),
+        pageSize: LEADERBOARD_PAGE_SIZE,
         publicRoasts: Number(stats.publicRoasts),
         totalRoasts: Number(stats.totalRoasts),
+        totalPages: Math.max(
+          1,
+          Math.ceil(Number(filteredCount?.total ?? 0) / LEADERBOARD_PAGE_SIZE),
+        ),
       },
     };
   } catch {
@@ -222,4 +262,5 @@ export {
   type LeaderboardPageRow,
   type LeaderboardPageStats,
   type LeaderboardScoreFilter,
+  type LeaderboardSort,
 };
