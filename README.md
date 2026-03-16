@@ -33,3 +33,36 @@ npm run dev
 ```
 
 Abra `http://localhost:3000` no navegador.
+
+## Banco local
+
+Para rodar com banco local usando Docker Desktop:
+
+```bash
+npm run db:up
+npm run db:migrate
+npm run db:seed
+```
+
+Se quiser inspecionar os dados:
+
+```bash
+npm run db:studio
+```
+
+## Analise com IA
+
+O app funciona sem provedor externo usando o fallback heuristico local. Para ativar a analise com IA real:
+
+1. copie `.env.example` para `.env`
+2. preencha `OPENAI_API_KEY`
+3. opcionalmente ajuste `OPENAI_MODEL`
+
+Exemplo:
+
+```env
+OPENAI_API_KEY=sua_chave_aqui
+OPENAI_MODEL=gpt-4.1-mini
+```
+
+Sem `OPENAI_API_KEY`, o fluxo continua funcional usando a analise local.
