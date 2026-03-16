@@ -13,6 +13,7 @@ import { ShareRoastButton } from "./share-roast-button";
 
 type HomeRoastResultProps = {
   className?: string;
+  hideSavedRoastActions?: boolean;
   result: RoastAnalysisResult;
 };
 
@@ -28,7 +29,11 @@ function getSuggestedFixFilename(language: string, kind: "before" | "after") {
   return `${kind === "before" ? "your_code" : "improved_code"}${extension}`;
 }
 
-function HomeRoastResult({ className, result }: HomeRoastResultProps) {
+function HomeRoastResult({
+  className,
+  hideSavedRoastActions = false,
+  result,
+}: HomeRoastResultProps) {
   const hasConcreteFix = result.diffLines.some(
     (line) => line.kind === "added" || line.kind === "removed",
   );
@@ -58,7 +63,7 @@ function HomeRoastResult({ className, result }: HomeRoastResultProps) {
             </Typography>
             <Typography>{result.summary}</Typography>
 
-            {result.shareSlug ? (
+            {result.shareSlug && !hideSavedRoastActions ? (
               <div className="flex flex-wrap items-center gap-3 pt-2">
                 <Link
                   className={button({ size: "md", variant: "secondary" })}
