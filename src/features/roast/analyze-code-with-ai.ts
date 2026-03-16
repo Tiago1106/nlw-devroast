@@ -18,12 +18,10 @@ const roastAnalysisSchema = z.object({
       z.object({
         content: z.string().min(1).max(400),
         kind: roastDiffLineKindSchema,
-        newLineNumber: z.number().int().positive().optional(),
-        oldLineNumber: z.number().int().positive().optional(),
       }),
     )
     .min(1)
-    .max(8),
+    .max(10),
   headline: z.string().min(12).max(180),
   issues: z
     .array(
@@ -109,15 +107,27 @@ function getVerdict(score: number): RoastAnalysisResult["verdict"] {
 }
 
 function normalizeDiffLines(output: z.infer<typeof roastAnalysisSchema>) {
-  const normalized = output.diffLines.map((line) => ({
-    content: line.content.trim().slice(0, 400),
-    kind: line.kind,
-    newLineNumber: line.newLineNumber,
-    oldLineNumber: line.oldLineNumber,
-  }));
+  const normalized = output.diffLines
+    .map((line) => ({
+      content: line.content.trim().slice(0, 400),
+      kind: line.kind,
+    }))
+    .filter((line) => line.content.length > 0);
 
-  return normalized.length
-    ? normalized
+  const withoutEmptyContext = normalized.filter(
+    (line, index) =>
+      line.kind !== "context" ||
+      index === 0 ||
+      index === normalized.length - 1 ||
+      normalized[index - 1]?.kind !== "context",
+  );
+  const hasAdded = withoutEmptyContext.some((line) => line.kind === "added");
+  const hasRemoved = withoutEmptyContext.some(
+    (line) => line.kind === "removed",
+  );
+
+  return withoutEmptyContext.length && hasAdded && hasRemoved
+    ? withoutEmptyContext
     : [{ content: "// no diff generated", kind: "context" as const }];
 }
 
@@ -165,7 +175,11 @@ async function analyzeCodeWithAi(
       "Return structured JSON only.",
       "Focus on realistic engineering feedback, not generic roast lines.",
       "Keep issue titles concise and issue descriptions practical.",
-      "The diff should suggest one meaningful improvement and can include context lines.",
+      "The diff must be a real patch, not a generic code excerpt.",
+      "Return 1-2 removed lines and 1-3 added lines that directly improve the snippet.",
+      "Context lines are optional and should be minimal.",
+      "Never return a diff made only of context lines.",
+      "Prefer concise, high-signal patches over long rewrites.",
       "Use score from 1.0 to 9.9, where lower is worse.",
       "Score and verdict must align: critical for truly rough code, warning for mixed quality, good only when the snippet is solid.",
       "Do not praise weak code just to sound balanced.",
